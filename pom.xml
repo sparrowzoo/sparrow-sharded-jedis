@@ -20,14 +20,13 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>sparrow-super</artifactId>
+        <artifactId>sparrow-bom</artifactId>
         <groupId>com.sparrow</groupId>
         <version>1.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <version>1.0-SNAPSHOT</version>
     <artifactId>sparrow-sharded-jedis</artifactId>
-
+    <version>${sparrow_sharded_jedis_version}</version>
     <dependencies>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -37,7 +36,6 @@
         <dependency>
             <groupId>com.sparrow</groupId>
             <artifactId>sparrow</artifactId>
-            <version>${sparrow_version}</version>
         </dependency>
     </dependencies>
 </project>
