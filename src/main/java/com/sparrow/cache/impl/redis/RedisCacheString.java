@@ -22,7 +22,7 @@ import com.sparrow.cache.CacheString;
 import com.sparrow.constant.cache.KEY;
 import com.sparrow.core.TypeConverter;
 import com.sparrow.exception.CacheConnectionException;
-import com.sparrow.support.Entity;
+import com.sparrow.protocol.Entity;
 import com.sparrow.utility.StringUtility;
 import redis.clients.jedis.ShardedJedis;
 
@@ -39,8 +39,8 @@ public class RedisCacheString extends AbstractCommand implements CacheString {
         return redisPool.execute(new Executor<String>() {
             @Override
             public String execute(ShardedJedis jedis) {
-                TypeConverter typeConverter=new TypeConverter(String.class);
-                String v=typeConverter.convert(value).toString();
+                TypeConverter typeConverter = new TypeConverter(String.class);
+                String v = typeConverter.convert(value).toString();
                 return jedis.set(key.key(), v);
             }
         }, key);
@@ -66,7 +66,7 @@ public class RedisCacheString extends AbstractCommand implements CacheString {
                     if (StringUtility.isNullOrEmpty(value)) {
                         value = hook.read(key);
                         try {
-                            RedisCacheString.this.set(key,value);
+                            RedisCacheString.this.set(key, value);
                         } catch (CacheConnectionException ignore) {
                         }
                     }
@@ -90,7 +90,7 @@ public class RedisCacheString extends AbstractCommand implements CacheString {
                             redisPool.getCacheMonitor().penetrate(key);
                         }
                         T value = hook.read(key);
-                        RedisCacheString.this.set(key,value);
+                        RedisCacheString.this.set(key, value);
                         return hook.read(key);
                     }
                     TypeConverter typeConverter = new TypeConverter(clazz);
