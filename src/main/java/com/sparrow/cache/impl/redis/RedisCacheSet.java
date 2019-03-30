@@ -22,11 +22,9 @@ import com.sparrow.cache.CacheSet;
 import com.sparrow.constant.cache.KEY;
 import com.sparrow.core.TypeConverter;
 import com.sparrow.exception.CacheConnectionException;
-import com.sparrow.support.Entity;
-import redis.clients.jedis.ShardedJedis;
-
 import java.util.HashSet;
 import java.util.Set;
+import redis.clients.jedis.ShardedJedis;
 import redis.clients.jedis.ShardedJedisPipeline;
 
 /**

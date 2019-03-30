@@ -24,6 +24,8 @@ import com.sparrow.container.Container;
 import com.sparrow.container.ContainerAware;
 import com.sparrow.core.Pair;
 import com.sparrow.exception.CacheConnectionException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,9 +36,6 @@ import redis.clients.jedis.ShardedJedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 import redis.clients.util.Hashing;
 import redis.clients.util.Sharded;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author harry

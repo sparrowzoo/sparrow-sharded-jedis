@@ -22,7 +22,7 @@ import com.sparrow.cache.CacheString;
 import com.sparrow.constant.cache.KEY;
 import com.sparrow.core.TypeConverter;
 import com.sparrow.exception.CacheConnectionException;
-import com.sparrow.support.Entity;
+import com.sparrow.protocol.Entity;
 import com.sparrow.utility.StringUtility;
 import redis.clients.jedis.ShardedJedis;
 

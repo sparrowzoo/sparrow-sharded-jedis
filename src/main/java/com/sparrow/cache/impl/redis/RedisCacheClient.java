@@ -17,7 +17,13 @@
 
 package com.sparrow.cache.impl.redis;
 
-import com.sparrow.cache.*;
+import com.sparrow.cache.CacheClient;
+import com.sparrow.cache.CacheHash;
+import com.sparrow.cache.CacheKey;
+import com.sparrow.cache.CacheList;
+import com.sparrow.cache.CacheSet;
+import com.sparrow.cache.CacheSortedSet;
+import com.sparrow.cache.CacheString;
 
 /**
  * Created by harry on 2018/1/18.
