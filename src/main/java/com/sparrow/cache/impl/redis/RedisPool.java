@@ -19,7 +19,7 @@ package com.sparrow.cache.impl.redis;
 
 import com.sparrow.cache.CacheMonitor;
 import com.sparrow.constant.cache.KEY;
-import com.sparrow.constant.magic.SYMBOL;
+import com.sparrow.protocol.constant.magic.SYMBOL;
 import com.sparrow.container.Container;
 import com.sparrow.container.ContainerAware;
 import com.sparrow.core.Pair;
