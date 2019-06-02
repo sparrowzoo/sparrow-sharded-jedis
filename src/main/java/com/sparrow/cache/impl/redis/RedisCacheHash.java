@@ -20,6 +20,8 @@ package com.sparrow.cache.impl.redis;
 import com.sparrow.cache.CacheDataNotFound;
 import com.sparrow.cache.CacheHash;
 import com.sparrow.constant.cache.KEY;
+import com.sparrow.core.Cache;
+import com.sparrow.core.ExpirableData;
 import com.sparrow.core.TypeConverter;
 import com.sparrow.exception.CacheConnectionException;
 import com.sparrow.utility.StringUtility;
@@ -56,19 +58,10 @@ public class RedisCacheHash extends AbstractCommand implements CacheHash {
                             redisPool.getCacheMonitor().penetrate(key);
                         }
                         result = hook.read(key);
-                        RedisCacheHash.this.put(key, map);
+                        RedisCacheHash.this.put(key, result);
                         return result;
                     }
-                    TypeConverter keyConverter = new TypeConverter(keyClazz);
-                    TypeConverter valueConverter = new TypeConverter(clazz);
-                    for (String k : map.keySet()) {
-                        if (StringUtility.isNullOrEmpty(map.get(k))) {
-                            continue;
-                        }
-                        T t = (T) valueConverter.convert(map.get(k));
-                        result.put((K) keyConverter.convert(k), t);
-                    }
-                    return result;
+                    return assembleMap(result,keyClazz,clazz,map);
                 }
             }, key);
         } catch (CacheConnectionException e) {
@@ -79,6 +72,20 @@ public class RedisCacheHash extends AbstractCommand implements CacheHash {
         }
     }
 
+    private <K,T> Map<K, T> assembleMap(Map<K, T> result,Class keyClazz,Class clazz, Map<String, String> map) {
+        TypeConverter valueConverter = new TypeConverter(clazz);
+        TypeConverter keyTypeConverter = new TypeConverter(keyClazz);
+        for (String k : map.keySet()) {
+            String value= map.get(k);
+            if (StringUtility.isNullOrEmpty(value)) {
+                continue;
+            }
+            T t = (T) valueConverter.convert(value);
+            result.put((K) keyTypeConverter.convert(k), t);
+        }
+        return result;
+    }
+
     @Override
     public <K, T> Map<K, T> getAll(final KEY key, final Class keyClazz, final Class clazz) throws CacheConnectionException {
         return redisPool.execute(new Executor<Map<K, T>>() {
@@ -86,16 +93,7 @@ public class RedisCacheHash extends AbstractCommand implements CacheHash {
             public Map<K, T> execute(ShardedJedis jedis) throws CacheConnectionException {
                 Map<K, T> result = new HashMap<K, T>();
                 Map<String, String> map = jedis.hgetAll(key.key());
-                TypeConverter valueConverter = new TypeConverter(clazz);
-                TypeConverter keyTypeConverter = new TypeConverter(keyClazz);
-                for (String k : map.keySet()) {
-                    if (StringUtility.isNullOrEmpty(map.get(k))) {
-                        continue;
-                    }
-                    T t = (T) valueConverter.convert(map.get(k));
-                    result.put((K) keyTypeConverter.convert(k), t);
-                }
-                return result;
+                return assembleMap(result,keyClazz,clazz,map);
             }
         }, key);
     }
@@ -187,5 +185,20 @@ public class RedisCacheHash extends AbstractCommand implements CacheHash {
                 return map.size();
             }
         }, key);
+    }
+
+    @Override
+    public <T> T get(KEY key, String filed,Class clazz, CacheDataNotFound<Map<String, T>> hook,int expireSeconds) throws CacheConnectionException {
+        if(StringUtility.isNullOrEmpty(key)){
+            return null;
+        }
+        Cache cache=Cache.getInstance();
+        ExpirableData<Map<String,?>> localCache= cache.getExpirable(key.key());
+        if(localCache!=null){
+            return (T)localCache.getData().get(key.key());
+        }
+        Map<String,T> redisCache= this.getAll(key,filed.getClass(),clazz,hook);
+        cache.put(key.key(),redisCache,expireSeconds);
+        return redisCache.get(filed);
     }
 }
