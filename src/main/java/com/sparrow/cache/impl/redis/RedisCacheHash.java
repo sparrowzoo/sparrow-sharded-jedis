@@ -20,8 +20,6 @@ package com.sparrow.cache.impl.redis;
 import com.sparrow.cache.CacheDataNotFound;
 import com.sparrow.cache.CacheHash;
 import com.sparrow.constant.cache.KEY;
-import com.sparrow.core.Cache;
-import com.sparrow.core.ExpirableData;
 import com.sparrow.core.TypeConverter;
 import com.sparrow.exception.CacheConnectionException;
 import com.sparrow.utility.StringUtility;
@@ -30,7 +28,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import redis.clients.jedis.ShardedJedis;
-import redis.clients.jedis.ShardedJedisPipeline;
 
 /**
  * Created by harry on 2018/1/26.
@@ -176,29 +173,14 @@ public class RedisCacheHash extends AbstractCommand implements CacheHash {
         return redisPool.execute(new Executor<Integer>() {
             @Override
             public Integer execute(ShardedJedis jedis) {
-                ShardedJedisPipeline shardedJedisPipeline = jedis.pipelined();
                 TypeConverter typeConverter = new TypeConverter(String.class);
+                Map<String,String> newMap=new HashMap<>();
                 for (K k : map.keySet()) {
-                    shardedJedisPipeline.hset(key.key(), k.toString(), typeConverter.convert(map.get(k)).toString());
+                    newMap.put(key.key(),typeConverter.convert(map.get(k)).toString());
                 }
-                shardedJedisPipeline.sync();
+                jedis.hmset(key.key(),newMap);
                 return map.size();
             }
         }, key);
-    }
-
-    @Override
-    public <T> T get(KEY key, String filed,Class clazz, CacheDataNotFound<Map<String, T>> hook,int expireSeconds) throws CacheConnectionException {
-        if(StringUtility.isNullOrEmpty(key)){
-            return null;
-        }
-        Cache cache=Cache.getInstance();
-        ExpirableData<Map<String,?>> localCache= cache.getExpirable(key.key());
-        if(localCache!=null){
-            return (T)localCache.getData().get(key.key());
-        }
-        Map<String,T> redisCache= this.getAll(key,filed.getClass(),clazz,hook);
-        cache.put(key.key(),redisCache,expireSeconds);
-        return redisCache.get(filed);
     }
 }
