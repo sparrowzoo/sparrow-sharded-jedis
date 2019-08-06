@@ -47,13 +47,10 @@ public class RedisPool implements ContainerAware {
     private Logger logger = LoggerFactory.getLogger(RedisPool.class);
     private ShardedJedisPool pool = null;
     private CacheMonitor cacheMonitor;
+    private JedisPoolConfig config;
 
 
     private String urls;
-    private Integer maxActive = 100;
-    private Integer maxIdle = 50;
-    private Integer maxWait = 50000;
-    private Boolean testOnBorrow = true;
 
     public void setCacheMonitor(CacheMonitor cacheMonitor) {
         this.cacheMonitor = cacheMonitor;
@@ -63,39 +60,16 @@ public class RedisPool implements ContainerAware {
         return cacheMonitor;
     }
 
-    public void setMaxActive(Integer maxActive) {
-        this.maxActive = maxActive;
-    }
-
-    public void setMaxIdle(Integer maxIdle) {
-        this.maxIdle = maxIdle;
-    }
-
-    public void setMaxWait(Integer maxWait) {
-        this.maxWait = maxWait;
-    }
-
-    public void setTestOnBorrow(Boolean testOnBorrow) {
-        this.testOnBorrow = testOnBorrow;
-    }
-
     public void setUrls(String urls) {
         this.urls = urls;
     }
 
+    public void setConfig(JedisPoolConfig config) {
+        this.config = config;
+    }
+
     public String getInfo() {
-        StringBuilder poolInfo = new StringBuilder();
-        poolInfo.append(",url:");
-        poolInfo.append(urls);
-        poolInfo.append("maxActive:");
-        poolInfo.append(maxActive);
-        poolInfo.append("maxIdle:");
-        poolInfo.append(this.maxIdle);
-        poolInfo.append("maxWait:");
-        poolInfo.append(this.maxWait);//超时时间
-        poolInfo.append("testOnBorrow");
-        poolInfo.append(this.testOnBorrow);
-        return poolInfo.toString();
+        return config.toString();
     }
 
     public RedisPool() {
@@ -129,13 +103,6 @@ public class RedisPool implements ContainerAware {
 
     @Override
     public void aware(Container container, String beanName) {
-        JedisPoolConfig config = new JedisPoolConfig();
-        // 最大活动链接
-        config.setMaxActive(this.maxActive);
-        config.setMaxIdle(this.maxIdle);
-        config.setMaxWait(this.maxWait);//超时时间
-        config.setTestOnBorrow(this.testOnBorrow);
-
         // 超过时则报错 阻塞 或增加链接数
         config.setWhenExhaustedAction(GenericObjectPool.WHEN_EXHAUSTED_FAIL);
         String[] urlArray = this.urls.split(SYMBOL.COMMA);
