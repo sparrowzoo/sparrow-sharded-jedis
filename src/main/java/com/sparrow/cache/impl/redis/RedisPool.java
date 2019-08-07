@@ -48,8 +48,6 @@ public class RedisPool implements ContainerAware {
     private ShardedJedisPool pool = null;
     private CacheMonitor cacheMonitor;
     private JedisPoolConfig config;
-
-
     private String urls;
 
     public void setCacheMonitor(CacheMonitor cacheMonitor) {
