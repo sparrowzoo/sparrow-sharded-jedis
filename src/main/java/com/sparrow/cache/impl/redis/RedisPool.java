@@ -83,7 +83,6 @@ public class RedisPool implements ContainerAware {
                 }
             }
 
-            jedis = this.pool.getResource();
             T result = executor.execute(jedis);
             this.pool.returnResource(jedis);
             Long endTime = System.currentTimeMillis();

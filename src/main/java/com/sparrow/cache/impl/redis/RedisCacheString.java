@@ -47,6 +47,18 @@ public class RedisCacheString extends AbstractCommand implements CacheString {
     }
 
     @Override
+    public String getSet(KEY key, Object value) throws CacheConnectionException {
+        return redisPool.execute(new Executor<String>() {
+            @Override
+            public String execute(ShardedJedis jedis) throws CacheConnectionException {
+                TypeConverter typeConverter = new TypeConverter(String.class);
+                String v = typeConverter.convert(value).toString();
+                return jedis.getSet(key.key(), v);
+            }
+        }, key);
+    }
+
+    @Override
     public String get(final KEY key) throws CacheConnectionException {
         return redisPool.execute(new Executor<String>() {
             @Override
